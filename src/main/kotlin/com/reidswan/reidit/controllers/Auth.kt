@@ -12,10 +12,10 @@ object AuthController {
         return (0 until SALT_LENGTH).fold("") {acc, _ -> acc + ALPHABET[random.nextInt(ALPHABET.length)] }.toString()
     }
 
-    fun String.hashPassword(salt: String): String {
+    fun hashPassword(src: String, salt: String): String {
         val bytes = MessageDigest
             .getInstance("SHA-512")
-            .digest((this + salt).toByteArray(Charsets.UTF_16))
+            .digest((src + salt).toByteArray(Charsets.UTF_16))
         return bytes.fold("") {acc, byte -> acc + "%02X".format(byte)}.toString()
     }
 
