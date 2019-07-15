@@ -8,5 +8,10 @@
   "server": {
     "port": 8080,
     "sslPort": 8443
+  },
+  "jwt": {
+    "secret": "d293dGhpc2lzYXRlcnJpYmxlcGxhY2V0b3N0b3JlYXNlY3JldA==",
+    "issuer": "reidit_backend",
+    "realm": "reidit"
   }
 }

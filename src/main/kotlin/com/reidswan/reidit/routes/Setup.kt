@@ -7,8 +7,10 @@ import io.ktor.gson.*
 import com.reidswan.reidit.config.*
 import com.reidswan.reidit.common.*
 import com.reidswan.reidit.common.Either.*
+import io.ktor.response.respond
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import java.lang.IllegalArgumentException
 import kotlin.text.toIntOrNull
 
 val logger: Logger = LoggerFactory.getLogger(Application::class.java)
@@ -52,4 +54,27 @@ fun Application.setup() {
         sslPort = Configuration.config.server.sslPort
         permanentRedirect = true
     }
+    install(StatusPages) {
+        exception<Throwable> { cause ->
+            cause.printStackTrace()
+            logger.error(cause.message)
+            call.respond(HttpStatusCode.InternalServerError, "Something went wrong processing the request")
+        }
+        exception<IllegalArgumentException> {
+            call.respond(HttpStatusCode.BadRequest, "The request failed to validate; ensure that the format is correct")
+        }
+        exception<HttpException> { cause ->
+            logger.error("HTTP error (" + cause.statusCode + "): " + cause.message)
+            call.respond(cause.statusCode, ErrorResponse(cause.response))
+        }
+        status(HttpStatusCode.NotFound) {
+            logger.info(it.toString())
+            call.respond(HttpStatusCode.NotFound, ErrorResponse("The requested path could not be found on this server"))
+        }
+        status(HttpStatusCode.Unauthorized) {
+            call.respond(HttpStatusCode.Unauthorized,
+                ErrorResponse("Failed to authenticate; ensure you have logged in and set the correct header"))
+        }
+    }
+
 }

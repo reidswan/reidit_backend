@@ -1,33 +1,76 @@
 package com.reidswan.reidit.controllers
 
-import com.reidswan.reidit.common.Either.*
-import com.reidswan.reidit.common.Either
+import com.reidswan.reidit.common.*
+import com.reidswan.reidit.common.HttpException
 import com.reidswan.reidit.data.queries.AccountsQueries
 import com.reidswan.reidit.config.Configuration
-import com.reidswan.reidit.data.queries.AccountResult
+import io.ktor.application.Application
+import io.ktor.http.HttpStatusCode
+import org.jetbrains.exposed.exceptions.ExposedSQLException
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+import java.sql.SQLIntegrityConstraintViolationException
+
+val logger: Logger = LoggerFactory.getLogger(Application::class.java)
 
 sealed class ValidationError {
-    class Username(val err: UsernameValidationError): ValidationError()
-    class Email(val err: EmailValidationError): ValidationError()
-    class Password(val err: PasswordValidationError): ValidationError()
+    class Username(val err: UsernameValidationError): ValidationError() {
+        override fun toString(): String {
+            return err.toString()
+        }
+    }
+    class Email(val err: EmailValidationError): ValidationError() {
+        override fun toString(): String {
+            return err.toString()
+        }
+    }
+    class Password(val err: PasswordValidationError): ValidationError() {
+        override fun toString(): String {
+            return err.toString()
+        }
+    }
 }
 
 enum class UsernameValidationError {
     NotAvailable,
     BelowMinLength,
     AboveMaxLength,
-    InvalidCharacters
+    InvalidCharacters;
+
+    override fun toString(): String {
+        return when (this) {
+            NotAvailable -> "This username is already in use"
+            InvalidCharacters -> "The username can only contain alphanumeric characters and the symbols '_-'"
+            AboveMaxLength -> "The username must contain at most $USERNAME_LENGTH_MAX characters"
+            BelowMinLength -> "The username must contain at least $USERNAME_LENGTH_MIN characters"
+        }
+    }
 }
 
 enum class EmailValidationError {
     AlreadyInUse,
-    InvalidFormat
+    InvalidFormat;
+
+    override fun toString(): String {
+        return when (this) {
+            AlreadyInUse -> "This email address is already in use"
+            InvalidFormat -> "The email address provided is invalid"
+        }
+    }
 }
 
 enum class PasswordValidationError {
     BelowMinLength,
     InsufficientComplexity,
-    InvalidCharacters
+    InvalidCharacters;
+
+    override fun toString(): String {
+        return when (this) {
+            BelowMinLength -> "Password must be at least $MIN_PASSWORD_LENGTH characters"
+            InsufficientComplexity -> "Password must contain at least 1 uppercase, 1 lowercase and 1 digit character"
+            InvalidCharacters -> "Password can only contain alphanumeric characters and the symbols _-!@#\$%^&*+=/*-~|?"
+        }
+    }
 }
 
 const val USERNAME_LENGTH_MIN = 4
@@ -46,12 +89,12 @@ const val DIGITS = "0987654321"
 object AccountsController {
 
     fun emailExists(emailAddress: String): Boolean {
-        return AccountsQueries.getAccountByEmail(Configuration.dependencies.database, emailAddress) == null
+        return AccountsQueries.getAccountByEmail(Configuration.dependencies.database, emailAddress) != null
     }
 
 
     fun usernameExists(username: String): Boolean {
-        return AccountsQueries.getAccountByUsername(Configuration.dependencies.database, username) == null
+        return AccountsQueries.getAccountByUsername(Configuration.dependencies.database, username) != null
     }
 
     fun getAccountByUsername(username: String): AccountResult? {
@@ -63,7 +106,44 @@ object AccountsController {
     }
 
     fun createAccount(username: String, emailAddress: String?, password: String) {
+        val validationErrors = (
+                validate(usernameValidators, username).map{ ValidationError.Username(it) }
+              + validate(passwordValidators, password).map{ ValidationError.Password(it) }
+              + if (emailAddress != null) validate(emailValidators, emailAddress).map{ ValidationError.Email(it) }
+                else listOf()
+        )
+        if (validationErrors.isNotEmpty()) {
+            throw HttpException(
+                validationErrors.joinToString(separator=", ", transform = {it.toString()}),
+                HttpStatusCode.BadRequest)
+        }
 
+        val salt = AuthController.generateSalt()
+        val hash = AuthController.hashPassword(password, salt)
+        try {
+            AccountsQueries.createAccount(Configuration.dependencies.database, username, emailAddress, hash, salt)
+        } catch (e: ExposedSQLException) {
+            when (e.cause) {
+                is SQLIntegrityConstraintViolationException -> {
+                    throw HttpException("Username and email address must be unique", HttpStatusCode.Conflict)
+                }
+                else -> throw e
+            }
+        }
+        // TODO account creation email
+    }
+
+    fun login(loginIdentifier: String, password: String): LoginResult? {
+        val account = if (EMAIL_REGEX.toRegex(RegexOption.IGNORE_CASE).matches(loginIdentifier)) {
+            getAccountByEmail(loginIdentifier)
+        } else {
+            getAccountByUsername(loginIdentifier)
+        } ?: return null
+
+        val providedPasswordHash = AuthController.hashPassword(password, account.passwordSalt)
+        if (providedPasswordHash != account.passwordHash) return null
+
+        return LoginResult(account.toPublic(), AuthController.generateJWT(account))
     }
 
     private val usernameValidators = listOf(
@@ -107,5 +187,6 @@ object AccountsController {
         }
     )
 
-    private fun<T, U> validate(validators: List<(T) -> U?>, toValidate: T): List<U> = validators.mapNotNull { it(toValidate) }
+    private fun<T, U: Any> validate(validators: List<(T) -> U?>, toValidate: T): List<U> = validators.mapNotNull { it(toValidate) }
+
 }

@@ -8,10 +8,7 @@ import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.*
 import com.reidswan.reidit.common.*
 import com.reidswan.reidit.data.Community
-import org.graalvm.compiler.hotspot.nodes.aot.ResolveConstantStubCall
 import kotlin.math.min
-
-data class CommunityResult(val communityId: Int, val name: String, val description: String)
 
 fun ResultRow.toCommunityResult(): CommunityResult {
     return CommunityResult(

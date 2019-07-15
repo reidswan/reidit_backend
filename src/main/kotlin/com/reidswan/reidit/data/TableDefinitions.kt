@@ -1,6 +1,7 @@
 package com.reidswan.reidit.data
 
 import org.jetbrains.exposed.sql.*
+import org.joda.time.DateTime
 import org.postgresql.util.PGobject
 
 object Account: Table(name="account") {
@@ -60,4 +61,9 @@ object Comment: Table(name="comment") {
     val votes = integer("votes").default(0)
     val isDeleted = bool("is_deleted").default(false)
     val parentComment = reference("parent_comment", commentId).nullable()
+}
+
+object EmailVerification: Table(name="email_verification") {
+    val accountId = reference("account_id", Account.accountId)
+    val verificationCode = varchar("verification_code", 255)
 }
