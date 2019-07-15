@@ -130,6 +130,20 @@ object AccountsController {
                 else -> throw e
             }
         }
+        // TODO account creation email
+    }
+
+    fun login(loginIdentifier: String, password: String): LoginResult? {
+        val account = if (EMAIL_REGEX.toRegex(RegexOption.IGNORE_CASE).matches(loginIdentifier)) {
+            getAccountByEmail(loginIdentifier)
+        } else {
+            getAccountByUsername(loginIdentifier)
+        } ?: return null
+
+        val providedPasswordHash = AuthController.hashPassword(password, account.passwordSalt)
+        if (providedPasswordHash != account.passwordHash) return null
+
+        return LoginResult(account.toPublic(), AuthController.generateJWT(account))
     }
 
     private val usernameValidators = listOf(
@@ -174,4 +188,5 @@ object AccountsController {
     )
 
     private fun<T, U: Any> validate(validators: List<(T) -> U?>, toValidate: T): List<U> = validators.mapNotNull { it(toValidate) }
+
 }

@@ -59,3 +59,8 @@ CREATE TABLE IF NOT EXISTS comment (
 
 CREATE INDEX comment_vote_count ON comment(votes, post_id) WHERE is_deleted = FALSE AND parent_comment IS NULL;
 CREATE INDEX comment_tree ON comment(parent_comment, votes) WHERE parent_comment IS NOT NULL;
+
+CREATE TABLE IF NOT EXISTS email_verification (
+    account_id INT NOT NULL REFERENCES account(account_id),
+    verification_code VARCHAR(255) NOT NULL
+);

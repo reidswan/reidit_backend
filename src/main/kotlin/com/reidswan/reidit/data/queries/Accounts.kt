@@ -11,6 +11,7 @@ import com.reidswan.reidit.data.Account
 
 fun ResultRow.toAccountResult(): AccountResult {
     return AccountResult(
+        this[Account.accountId],
         this[Account.username],
         this[Account.emailAddress],
         this[Account.verified],

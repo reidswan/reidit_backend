@@ -5,7 +5,8 @@ import com.google.gson.Gson
 
 data class DBConfig(val dbName: String, val userName: String, val password: String, val hostPort: String)
 data class ServerConfig(val port: Int, val sslPort: Int)
-data class Config(val database: DBConfig, val server: ServerConfig)
+data class JWTConfig(val secret: String, val issuer: String, val realm: String)
+data class Config(val database: DBConfig, val server: ServerConfig, val jwt: JWTConfig)
 data class Dependencies(val database: Database)
 
 object Configuration {
