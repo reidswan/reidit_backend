@@ -1,9 +1,12 @@
 #! /bin/bash
 CONTAINER_NAME=${CONTAINER_NAME:-"pg-docker"}
 VOLUME_MOUNT=${VOLUME_MOUNT:-~/docker/volumes/postgres}
-POSTGRES_USER=${POSTGRES_USER:-reidit_api}
-POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-youshouldusearealpassword}
-POSTGRES_DB=${POSTGRES_DB:-reidit}
+IMAGE_TAG="master"
+
+if [[ -n $TEST ]]
+then
+    IMAGE_TAG="test"
+fi
 
 echo "Checking for running container '$CONTAINER_NAME'"
 if [[ -n $(docker ps -f name=${CONTAINER_NAME} | grep -w $CONTAINER_NAME) ]] 
@@ -15,8 +18,7 @@ fi
 echo "Config = {
   container: $CONTAINER_NAME
   persistent: $(if [ -z $PERSIST_DATA ]; then echo 'false'; else echo 'true\nvolume mount: $VOLUME_MOUNT'; fi)
-  user: $POSTGRES_USER
-  db: $POSTGRES_DB
+  test: $(if [ -z $TEST ]; then echo 'false'; else echo 'true'; fi)
 }"
 
 echo "Container creation will proceed in 3 seconds (Ctrl-C to cancel)"
@@ -25,7 +27,7 @@ sleep 3
 
 if [ -z $PERSIST_DATA ]
 then 
-    docker run --rm --name $CONTAINER_NAME -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD -e POSTGRES_USER=$POSTGRES_USER -e POSTGRES_DB=$POSTGRES_DB -d -p 5432:5432 postgres
+    docker run --rm --name $CONTAINER_NAME -d -p 5432:5432 reidit-pgsql:$IMAGE_TAG
 else 
-    docker run --rm --name $CONTAINER_NAME -e POSTGRES_PASSWORD=$POSTGRES_PASSWORD -e POSTGRES_USER=$POSTGRES_USER -e POSTGRES_DB=$POSTGRES_DB -d -p 5432:5432 -v $VOLUME_MOUNT:/var/lib/postgresql/data postgres
+    docker run --rm --name $CONTAINER_NAME -d -p 5432:5432 -v $VOLUME_MOUNT:/var/lib/postgresql/data reidit-pgsql:$IMAGE_TAG
 fi
