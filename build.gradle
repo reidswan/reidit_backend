@@ -38,8 +38,6 @@ dependencies {
     implementation "com.google.code.gson:gson:$gson_version"
     implementation "org.jetbrains.exposed:exposed:$exposed_version"
     implementation "org.postgresql:postgresql:$postgresql_version"
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.3.1'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.3.1'
     compile "io.ktor:ktor-server-core:$ktor_version"
     compile "io.ktor:ktor-server-netty:$ktor_version"
     implementation "io.ktor:ktor-gson:$ktor_version"
@@ -49,6 +47,11 @@ dependencies {
     implementation "io.ktor:ktor-auth:$ktor_version"
     implementation "io.ktor:ktor-auth-jwt:$ktor_version"
     implementation "com.auth0:java-jwt:$auth0_jwt_version"
+
+    /** TEST DEPENDENCIES **/
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.3.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.3.1'
+    testImplementation "io.mockk:mockk:1.9"
 }
 
 task generateCert(type: JavaExec, dependsOn: 'classes') {

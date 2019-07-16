@@ -1,9 +1,10 @@
 package com.reidswan.reidit.controllers
 
-import com.reidswan.reidit.common.*
+import com.reidswan.reidit.common.AccountResult
 import com.reidswan.reidit.common.HttpException
-import com.reidswan.reidit.data.queries.AccountsQueries
+import com.reidswan.reidit.common.LoginResult
 import com.reidswan.reidit.config.Configuration
+import com.reidswan.reidit.data.queries.AccountsQueries
 import io.ktor.application.Application
 import io.ktor.http.HttpStatusCode
 import org.jetbrains.exposed.exceptions.ExposedSQLException
@@ -86,23 +87,22 @@ const val MIN_PASSWORD_LENGTH = 8
 const val PASSWORD_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstivwxyz0987654321_-!@#$%^&*+=/*-~|?"
 const val DIGITS = "0987654321"
 
-object AccountsController {
+class AccountsController(private val querySource: AccountsQueries) {
 
     fun emailExists(emailAddress: String): Boolean {
-        return AccountsQueries.getAccountByEmail(Configuration.dependencies.database, emailAddress) != null
+        return querySource.getAccountByEmail(Configuration.dependencies.database, emailAddress) != null
     }
 
-
     fun usernameExists(username: String): Boolean {
-        return AccountsQueries.getAccountByUsername(Configuration.dependencies.database, username) != null
+        return querySource.getAccountByUsername(Configuration.dependencies.database, username) != null
     }
 
     fun getAccountByUsername(username: String): AccountResult? {
-        return AccountsQueries.getAccountByUsername(Configuration.dependencies.database, username)
+        return querySource.getAccountByUsername(Configuration.dependencies.database, username)
     }
 
     fun getAccountByEmail(emailAddress: String): AccountResult? {
-        return AccountsQueries.getAccountByEmail(Configuration.dependencies.database, emailAddress)
+        return querySource.getAccountByEmail(Configuration.dependencies.database, emailAddress)
     }
 
     fun createAccount(username: String, emailAddress: String?, password: String) {
@@ -121,7 +121,7 @@ object AccountsController {
         val salt = AuthController.generateSalt()
         val hash = AuthController.hashPassword(password, salt)
         try {
-            AccountsQueries.createAccount(Configuration.dependencies.database, username, emailAddress, hash, salt)
+            querySource.createAccount(Configuration.dependencies.database, username, emailAddress, hash, salt)
         } catch (e: ExposedSQLException) {
             when (e.cause) {
                 is SQLIntegrityConstraintViolationException -> {

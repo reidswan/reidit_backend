@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test
 
 
 class AuthControllerTest {
+
     @Test
     fun `test generated salt has the correct length`() {
         Assertions.assertEquals(AuthController.generateSalt().length, SALT_LENGTH)

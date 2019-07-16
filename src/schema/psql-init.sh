@@ -21,13 +21,13 @@ echo "Config = {
   test: $(if [ -z $TEST ]; then echo 'false'; else echo 'true'; fi)
 }"
 
-echo "Container creation will proceed in 3 seconds (Ctrl-C to cancel)"
-
-sleep 3
-
 if [ -z $PERSIST_DATA ]
 then 
     docker run --rm --name $CONTAINER_NAME -d -p 5432:5432 reidit-pgsql:$IMAGE_TAG
 else 
     docker run --rm --name $CONTAINER_NAME -d -p 5432:5432 -v $VOLUME_MOUNT:/var/lib/postgresql/data reidit-pgsql:$IMAGE_TAG
 fi
+
+echo "Let the database warm up ..."
+sleep 10
+echo "Done"
