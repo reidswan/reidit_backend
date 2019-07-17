@@ -76,7 +76,7 @@ enum class PasswordValidationError {
 
 const val USERNAME_LENGTH_MIN = 4
 const val USERNAME_LENGTH_MAX = 50
-const val USERNAME_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstivwxyz0987654321_-"
+const val USERNAME_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0987654321_-"
 /*https://emailregex.com*/
 const val EMAIL_REGEX = "(?:[a-z0-9!#\$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#\$%&'*+/=?^_`{|}~-]+)*" +
         "|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")" +
@@ -84,7 +84,7 @@ const val EMAIL_REGEX = "(?:[a-z0-9!#\$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#\$%&'*+/
         "(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|" +
         "\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])"
 const val MIN_PASSWORD_LENGTH = 8
-const val PASSWORD_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstivwxyz0987654321_-!@#$%^&*+=/*-~|?"
+const val PASSWORD_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0987654321_-!@#$%^&*+=/*-~|?"
 const val DIGITS = "0987654321"
 
 class AccountsController(private val querySource: AccountsQueries) {

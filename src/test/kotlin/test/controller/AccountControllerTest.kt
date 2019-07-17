@@ -1,6 +1,7 @@
 package test.controller
 
 import com.reidswan.reidit.common.AccountResult
+import com.reidswan.reidit.common.HttpException
 import com.reidswan.reidit.controllers.AccountsController
 import com.reidswan.reidit.data.queries.AccountsQueries
 import io.mockk.every
@@ -9,17 +10,6 @@ import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 
 class AccountControllerTest {
-    //
-    // fun clearDatabase() {
-    //     transaction(Configuration.dependencies.database) {
-    //         val conn = TransactionManager.current().connection
-    //         val statement = conn.createStatement()
-    //         listOf("community", "account", "post", "vote", "comment", "subscription", "email_verification").forEach{
-    //             statement.execute("TRUNCATE TABLE $it CASCADE;")
-    //         }
-    //     }
-    // }
-
     @Test
     fun `test emailExists returns false if email does not exist`() {
         val mockAccountsQueries = mockk<AccountsQueries>()
@@ -62,6 +52,51 @@ class AccountControllerTest {
     fun `test createAccount fails if email invalid`() {
         val mockAccountsQueries = mockk<AccountsQueries>()
         every { mockAccountsQueries.createAccount(any(), any(), any(), any(), any()) } returns Unit
+        every { mockAccountsQueries.getAccountByEmail(any(), any()) } returns null
+        every { mockAccountsQueries.getAccountByUsername(any(), any()) } returns null
         val controller = AccountsController(mockAccountsQueries)
+        val invalidEmail = "invalid@o"
+        Assertions.assertThrows(HttpException::class.java){
+            controller.createAccount("uname", invalidEmail, "@98wfw3598HUIhiivbvsihui")
+        }
+    }
+
+    @Test
+    fun `test createAccount fails if username taken`() {
+        val mockAccountsQueries = mockk<AccountsQueries>()
+        every { mockAccountsQueries.createAccount(any(), any(), any(), any(), any()) } returns Unit
+        every { mockAccountsQueries.getAccountByEmail(any(), any()) } returns null
+        every { mockAccountsQueries.getAccountByUsername(any(), any()) } returns AccountResult(
+            1, "test", "test@example.com", false, "hash", "salt"
+        )
+        val controller = AccountsController(mockAccountsQueries)
+        Assertions.assertThrows(HttpException::class.java){
+            controller.createAccount("uname", "test@example.com", "@98wfw3598HUIhiivbvsihui")
+        }
+    }
+
+    @Test
+    fun `test createAccount fails if password invalid`() {
+        val mockAccountsQueries = mockk<AccountsQueries>()
+        every { mockAccountsQueries.createAccount(any(), any(), any(), any(), any()) } returns Unit
+        every { mockAccountsQueries.getAccountByEmail(any(), any()) } returns null
+        every { mockAccountsQueries.getAccountByUsername(any(), any()) } returns null
+        val controller = AccountsController(mockAccountsQueries)
+        Assertions.assertThrows(HttpException::class.java){
+            controller.createAccount("uname", "test@example.com", "badpwd")
+        }
+    }
+
+    @Test
+    fun `test createAccount succeeds on valid input`() {
+        val mockAccountsQueries = mockk<AccountsQueries>()
+        every { mockAccountsQueries.createAccount(any(), any(), any(), any(), any()) } returns Unit
+        every { mockAccountsQueries.getAccountByEmail(any(), any()) } returns null
+        every { mockAccountsQueries.getAccountByUsername(any(), any()) } returns null
+        val controller = AccountsController(mockAccountsQueries)
+        Assertions.assertDoesNotThrow {
+            controller.createAccount("someuname", "test@example.com", "@98wfw3598HUIhiivbvsihui")
+        }
+
     }
 }
