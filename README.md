@@ -5,7 +5,7 @@ All source code is housed in `src/main/kotlin`
 
 Database schemas and scripts are in `src/schema`
 
-`src/test` will hold tests
+`src/test` holds tests
 
 | Description | Location |
 |---|---|
