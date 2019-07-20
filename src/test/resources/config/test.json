@@ -1,0 +1,17 @@
+{
+  "database": {
+    "dbName": "reidit",
+    "userName": "reidit_api",
+    "password": "youshouldusearealpassword",
+    "hostPort": "localhost:5432"
+  },
+  "server": {
+    "port": 8080,
+    "sslPort": 8443
+  },
+  "jwt": {
+    "secret": "test_secret",
+    "issuer": "reidit_backend",
+    "realm": "reidit"
+  }
+}

@@ -5,8 +5,8 @@ import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
 import com.reidswan.reidit.common.AccountResult
 import com.reidswan.reidit.config.Configuration
-import java.security.SecureRandom
 import java.security.MessageDigest
+import kotlin.random.Random
 
 
 const val SALT_LENGTH = 16
@@ -14,8 +14,7 @@ const val ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz012345
 
 object AuthController {
     fun generateSalt(): String {
-        val random = SecureRandom.getInstanceStrong()
-        return (0 until SALT_LENGTH).fold("") {acc, _ -> acc + ALPHABET[random.nextInt(ALPHABET.length)] }.toString()
+        return (0 until SALT_LENGTH).fold("") {acc, _ -> acc + ALPHABET[Random.nextInt(ALPHABET.length)] }.toString()
     }
 
     fun hashPassword(src: String, salt: String): String {

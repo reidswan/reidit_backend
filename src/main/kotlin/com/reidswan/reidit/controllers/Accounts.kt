@@ -1,9 +1,10 @@
 package com.reidswan.reidit.controllers
 
-import com.reidswan.reidit.common.*
+import com.reidswan.reidit.common.AccountResult
 import com.reidswan.reidit.common.HttpException
-import com.reidswan.reidit.data.queries.AccountsQueries
+import com.reidswan.reidit.common.LoginResult
 import com.reidswan.reidit.config.Configuration
+import com.reidswan.reidit.data.queries.AccountsQueries
 import io.ktor.application.Application
 import io.ktor.http.HttpStatusCode
 import org.jetbrains.exposed.exceptions.ExposedSQLException
@@ -75,7 +76,7 @@ enum class PasswordValidationError {
 
 const val USERNAME_LENGTH_MIN = 4
 const val USERNAME_LENGTH_MAX = 50
-const val USERNAME_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstivwxyz0987654321_-"
+const val USERNAME_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0987654321_-"
 /*https://emailregex.com*/
 const val EMAIL_REGEX = "(?:[a-z0-9!#\$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#\$%&'*+/=?^_`{|}~-]+)*" +
         "|\"(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")" +
@@ -83,26 +84,25 @@ const val EMAIL_REGEX = "(?:[a-z0-9!#\$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#\$%&'*+/
         "(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|" +
         "\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])"
 const val MIN_PASSWORD_LENGTH = 8
-const val PASSWORD_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstivwxyz0987654321_-!@#$%^&*+=/*-~|?"
+const val PASSWORD_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0987654321_-!@#$%^&*+=/*-~|?"
 const val DIGITS = "0987654321"
 
-object AccountsController {
+class AccountsController(private val querySource: AccountsQueries) {
 
     fun emailExists(emailAddress: String): Boolean {
-        return AccountsQueries.getAccountByEmail(Configuration.dependencies.database, emailAddress) != null
+        return querySource.getAccountByEmail(emailAddress) != null
     }
 
-
     fun usernameExists(username: String): Boolean {
-        return AccountsQueries.getAccountByUsername(Configuration.dependencies.database, username) != null
+        return querySource.getAccountByUsername(username) != null
     }
 
     fun getAccountByUsername(username: String): AccountResult? {
-        return AccountsQueries.getAccountByUsername(Configuration.dependencies.database, username)
+        return querySource.getAccountByUsername(username)
     }
 
     fun getAccountByEmail(emailAddress: String): AccountResult? {
-        return AccountsQueries.getAccountByEmail(Configuration.dependencies.database, emailAddress)
+        return querySource.getAccountByEmail(emailAddress)
     }
 
     fun createAccount(username: String, emailAddress: String?, password: String) {
@@ -121,7 +121,7 @@ object AccountsController {
         val salt = AuthController.generateSalt()
         val hash = AuthController.hashPassword(password, salt)
         try {
-            AccountsQueries.createAccount(Configuration.dependencies.database, username, emailAddress, hash, salt)
+            querySource.createAccount(username, emailAddress, hash, salt)
         } catch (e: ExposedSQLException) {
             when (e.cause) {
                 is SQLIntegrityConstraintViolationException -> {

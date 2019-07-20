@@ -5,8 +5,8 @@ import com.reidswan.reidit.data.queries.CommunitiesQueries
 import com.reidswan.reidit.config.Configuration
 import com.reidswan.reidit.data.queries.Wrap
 
-object CommunitiesController {
+class CommunitiesController(private val querySource: CommunitiesQueries) {
     fun getCommunities(pageParameters: PageParameters): Wrap<List<CommunityResult>> {
-        return CommunitiesQueries.getCommunities(Configuration.dependencies.database, pageParameters)
+        return querySource.getCommunities(pageParameters)
     }
 }
