@@ -3,6 +3,8 @@ package com.reidswan.reidit.config
 import org.jetbrains.exposed.sql.*
 import com.google.gson.Gson
 
+const val DATABASE_CONNECT_ATTEMPTS = 3
+
 data class DBConfig(val dbName: String, val userName: String, val password: String, val hostPort: String)
 data class ServerConfig(val port: Int, val sslPort: Int)
 data class JWTConfig(val secret: String, val issuer: String, val realm: String)
