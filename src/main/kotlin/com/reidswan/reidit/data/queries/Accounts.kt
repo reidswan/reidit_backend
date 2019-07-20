@@ -20,21 +20,21 @@ fun ResultRow.toAccountResult(): AccountResult {
     )
 }
 
-object AccountsQueries {
-    fun getAccountByUsername(db: Database, username: String): AccountResult? {
-        return transaction(db) {
+class AccountsQueries(private val database: Database) {
+    fun getAccountByUsername(username: String): AccountResult? {
+        return transaction(database) {
             Account.select { Account.username eq username }.firstOrNull()?.toAccountResult()
         }
     }
 
-    fun getAccountByEmail(db: Database, emailAddress: String): AccountResult? {
-        return transaction(db) {
+    fun getAccountByEmail(emailAddress: String): AccountResult? {
+        return transaction(database) {
             Account.select { Account.emailAddress eq emailAddress }.firstOrNull()?.toAccountResult()
         }
     }
 
-    fun createAccount(db: Database, username: String, emailAddress: String?, passwordHash: String, passwordSalt: String) {
-        transaction(db) {
+    fun createAccount(username: String, emailAddress: String?, passwordHash: String, passwordSalt: String) {
+        transaction(database) {
             Account.insert {
                 it[Account.username] = username
                 it[Account.emailAddress] = emailAddress

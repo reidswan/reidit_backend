@@ -7,9 +7,11 @@ import com.reidswan.reidit.common.HttpException
 import com.reidswan.reidit.common.LoginRequest
 import com.reidswan.reidit.common.SuccessResponse
 import com.reidswan.reidit.common.UserPrincipal
+import com.reidswan.reidit.config.Configuration
 import com.reidswan.reidit.controllers.AccountsController
 import com.reidswan.reidit.controllers.CommunitiesController
 import com.reidswan.reidit.data.queries.AccountsQueries
+import com.reidswan.reidit.data.queries.CommunitiesQueries
 import io.ktor.application.Application
 import io.ktor.application.call
 import io.ktor.auth.authenticate
@@ -23,14 +25,15 @@ import io.ktor.routing.routing
 
 @Suppress("unused")
 fun Application.routes() {
-    val accountsController = AccountsController(AccountsQueries)
+    val accountsController = AccountsController(AccountsQueries(Configuration.dependencies.database))
+    val communitiesController = CommunitiesController(CommunitiesQueries(Configuration.dependencies.database))
     routing {
         get("/communities") {
             val pageParamResults = getValidPageParams(call.request.queryParameters)
             when (pageParamResults) {
                 is Right -> call.respond(HttpStatusCode.BadRequest, pageParamResults.right)
                 is Left -> {
-                    call.respond(CommunitiesController.getCommunities(pageParamResults.left))
+                    call.respond(communitiesController.getCommunities(pageParamResults.left))
                 }
             }
         }

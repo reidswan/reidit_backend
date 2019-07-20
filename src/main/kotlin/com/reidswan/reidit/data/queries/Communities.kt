@@ -18,9 +18,9 @@ fun ResultRow.toCommunityResult(): CommunityResult {
     )
 }
 
-object CommunitiesQueries {
-    fun getCommunities(db: Database, pageParameters: PageParameters): Wrap<List<CommunityResult>> {
-        return transaction(db) {
+class CommunitiesQueries(private val database: Database) {
+    fun getCommunities(pageParameters: PageParameters): Wrap<List<CommunityResult>> {
+        return transaction(database) {
             val communities = Community.selectAll().limit(
                 pageParameters.from, min(
                     pageParameters.size,
@@ -31,8 +31,8 @@ object CommunitiesQueries {
         }
     }
 
-    fun getCommunityByName(db: Database, communityName: String): CommunityResult? {
-        return transaction(db) {
+    fun getCommunityByName(communityName: String): CommunityResult? {
+        return transaction(database) {
             Community.select { Community.name eq communityName }.firstOrNull()?.toCommunityResult()
         }
     }

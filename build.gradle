@@ -74,7 +74,6 @@ run {
 }
 
 task startTestDb(type: Exec) {
-    println "Init test DB"
     environment "PGPASSFILE", "${System.getProperty('user.dir')}/src/schema/.pgpass"
     environment "CONTAINER_NAME", "pg-test"
     environment "TEST", "true"
@@ -82,7 +81,6 @@ task startTestDb(type: Exec) {
 }
 
 task stopTestDb(type: Exec) {
-    println "Cleanup test DB"
     commandLine 'docker', 'stop', 'pg-test'
 }
 

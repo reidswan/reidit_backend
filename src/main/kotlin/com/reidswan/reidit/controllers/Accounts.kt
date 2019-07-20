@@ -90,19 +90,19 @@ const val DIGITS = "0987654321"
 class AccountsController(private val querySource: AccountsQueries) {
 
     fun emailExists(emailAddress: String): Boolean {
-        return querySource.getAccountByEmail(Configuration.dependencies.database, emailAddress) != null
+        return querySource.getAccountByEmail(emailAddress) != null
     }
 
     fun usernameExists(username: String): Boolean {
-        return querySource.getAccountByUsername(Configuration.dependencies.database, username) != null
+        return querySource.getAccountByUsername(username) != null
     }
 
     fun getAccountByUsername(username: String): AccountResult? {
-        return querySource.getAccountByUsername(Configuration.dependencies.database, username)
+        return querySource.getAccountByUsername(username)
     }
 
     fun getAccountByEmail(emailAddress: String): AccountResult? {
-        return querySource.getAccountByEmail(Configuration.dependencies.database, emailAddress)
+        return querySource.getAccountByEmail(emailAddress)
     }
 
     fun createAccount(username: String, emailAddress: String?, password: String) {
@@ -121,7 +121,7 @@ class AccountsController(private val querySource: AccountsQueries) {
         val salt = AuthController.generateSalt()
         val hash = AuthController.hashPassword(password, salt)
         try {
-            querySource.createAccount(Configuration.dependencies.database, username, emailAddress, hash, salt)
+            querySource.createAccount(username, emailAddress, hash, salt)
         } catch (e: ExposedSQLException) {
             when (e.cause) {
                 is SQLIntegrityConstraintViolationException -> {
