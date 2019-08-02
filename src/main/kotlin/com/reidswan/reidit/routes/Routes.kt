@@ -1,17 +1,13 @@
 package com.reidswan.reidit.routes
 
-import com.reidswan.reidit.common.AccountRequest
-import com.reidswan.reidit.common.Either.Left
-import com.reidswan.reidit.common.Either.Right
-import com.reidswan.reidit.common.HttpException
-import com.reidswan.reidit.common.LoginRequest
-import com.reidswan.reidit.common.SuccessResponse
-import com.reidswan.reidit.common.UserPrincipal
+import com.reidswan.reidit.common.*
+import com.reidswan.reidit.common.Either.*
 import com.reidswan.reidit.config.Configuration
 import com.reidswan.reidit.controllers.AccountsController
 import com.reidswan.reidit.controllers.CommunitiesController
 import com.reidswan.reidit.data.queries.AccountsQueries
 import com.reidswan.reidit.data.queries.CommunitiesQueries
+import com.reidswan.reidit.data.queries.QuerySource
 import io.ktor.application.Application
 import io.ktor.application.call
 import io.ktor.auth.authenticate
@@ -25,15 +21,16 @@ import io.ktor.routing.routing
 
 @Suppress("unused")
 fun Application.routes() {
-    val accountsController = AccountsController(AccountsQueries(Configuration.dependencies.database))
-    val communitiesController = CommunitiesController(CommunitiesQueries(Configuration.dependencies.database))
+    val querySource = QuerySource(Configuration.dependencies.database)
+    val communitiesController = CommunitiesController(querySource.communitiesQueries, querySource.postQueries)
+    val accountsController = AccountsController(querySource.accountQueries)
     routing {
         get("/communities") {
             val pageParamResults = getValidPageParams(call.request.queryParameters)
             when (pageParamResults) {
                 is Right -> call.respond(HttpStatusCode.BadRequest, pageParamResults.right)
                 is Left -> {
-                    call.respond(communitiesController.getCommunities(pageParamResults.left))
+                    call.respond(HttpStatusCode.OK, communitiesController.getCommunities(pageParamResults.left))
                 }
             }
         }
@@ -43,7 +40,7 @@ fun Application.routes() {
                 throw HttpException("No username specified", HttpStatusCode.BadRequest)
             val account = accountsController.getAccountByUsername(username) ?:
                 throw HttpException("No user found for username $username", HttpStatusCode.NotFound)
-            call.respond(account.toPublic())
+            call.respond(HttpStatusCode.OK, account.toPublic())
         }
 
         post("/account") {
@@ -59,7 +56,30 @@ fun Application.routes() {
             call.respond(HttpStatusCode.OK, response)
         }
 
+        get("/community/{communityName}") {
+            val communityName = call.parameters["communityName"] ?:
+                throw HttpException("No community name specified", HttpStatusCode.BadRequest)
+            val pageParamResults = getValidPageParams(call.request.queryParameters)
+            when (pageParamResults) {
+                is Right -> call.respond(HttpStatusCode.BadRequest, pageParamResults.right)
+                is Left -> {
+                    val posts = communitiesController.getPostsInCommunity(communityName, pageParamResults.left) ?:
+                        throw HttpException("No community found with name '$communityName'", HttpStatusCode.NotFound)
+                    call.respond(HttpStatusCode.OK, posts)
+                }
+            }
+
+        }
+
         authenticate {
+            post("/community/{communityName}") {
+                val user: UserPrincipal = call.authentication.principal<UserPrincipal>()!!
+                val communityName = call.parameters["communityName"] ?:
+                    throw HttpException("No community name specified", HttpStatusCode.BadRequest)
+                val createCommunityRequest = call.receive<CreateCommunityRequest>()
+
+            }
+
             // TODO: remove /test endpoint
             get("/test") {
                 val user: UserPrincipal = call.authentication.principal<UserPrincipal>()!!

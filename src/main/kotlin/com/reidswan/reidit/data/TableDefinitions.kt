@@ -3,6 +3,7 @@ package com.reidswan.reidit.data
 import org.jetbrains.exposed.sql.*
 import org.joda.time.DateTime
 import org.postgresql.util.PGobject
+import com.reidswan.reidit.common.ContentType
 
 object Account: Table(name="account") {
     val accountId: Column<Int> = integer("account_id").autoIncrement().primaryKey()
@@ -17,6 +18,7 @@ object Community: Table(name="community") {
     val communityId: Column<Int> = integer("community_id").autoIncrement().primaryKey()
     val name: Column<String> = varchar("name", 50).uniqueIndex()
     val description: Column<String> = varchar("description", 300)
+    val createdBy = reference("created_by", Account.accountId)
 }
 
 class PGEnum<T:Enum<T>> (enumTypeName: String, enumValue: T?): PGobject() {
@@ -25,8 +27,6 @@ class PGEnum<T:Enum<T>> (enumTypeName: String, enumValue: T?): PGobject() {
         type = enumTypeName
     }
 }
-
-enum class ContentType { text, link }
 
 object Post: Table(name="post") {
     val postId: Column<Int> = integer("post_id").autoIncrement().primaryKey()

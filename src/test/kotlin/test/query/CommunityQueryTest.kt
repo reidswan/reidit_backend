@@ -32,9 +32,7 @@ object CommunityQueryTest {
         val pageParams = PageParameters(1, 5)
         val queries = CommunitiesQueries(Configuration.dependencies.database)
         val result = queries.getCommunities(pageParams)
-        val communities = result["communities"]
-        Assertions.assertNotNull(communities)
-        if (communities == null) return
+        val communities = result["communities"]!!
         Assertions.assertEquals(communities.size, pageParams.size)
     }
 }

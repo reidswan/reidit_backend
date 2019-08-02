@@ -14,7 +14,8 @@ fun ResultRow.toCommunityResult(): CommunityResult {
     return CommunityResult(
         this[Community.communityId],
         this[Community.name],
-        this[Community.description]
+        this[Community.description],
+        this[Community.createdBy]
     )
 }
 
