@@ -33,8 +33,8 @@ class AccountsQueries(private val database: Database) {
         }
     }
 
-    fun createAccount(username: String, emailAddress: String?, passwordHash: String, passwordSalt: String) {
-        transaction(database) {
+    fun createAccount(username: String, emailAddress: String?, passwordHash: String, passwordSalt: String): AccountResult? {
+        return transaction(database) {
             Account.insert {
                 it[Account.username] = username
                 it[Account.emailAddress] = emailAddress
@@ -42,7 +42,7 @@ class AccountsQueries(private val database: Database) {
                 it[Account.passwordHash] = passwordHash
                 it[Account.passwordSalt] = passwordSalt
             }
-        }
+        }.resultedValues?.firstOrNull()?.toAccountResult()
     }
 
 }

@@ -1,5 +1,7 @@
 package com.reidswan.reidit.common
 
+import com.expedia.graphql.annotations.GraphQLName
+
 data class AccountRequest (
     val username: String,
     val emailAddress: String?,
@@ -16,6 +18,7 @@ data class AccountResult (
     fun toPublic(): PublicAccountResult = PublicAccountResult(this.accountId, this.username, this.emailAddress, this.verified)
 }
 
+@GraphQLName("Account")
 data class PublicAccountResult (
     val accountId: Int,
     val username: String,

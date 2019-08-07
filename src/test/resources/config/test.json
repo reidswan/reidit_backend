@@ -3,7 +3,7 @@
     "dbName": "reidit",
     "userName": "reidit_api",
     "password": "youshouldusearealpassword",
-    "hostPort": "localhost:5432"
+    "hostPort": "localhost:9000"
   },
   "server": {
     "port": 8080,

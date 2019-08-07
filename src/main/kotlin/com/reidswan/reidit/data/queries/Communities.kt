@@ -22,10 +22,9 @@ class CommunitiesQueries(private val database: Database) {
     fun getCommunities(pageParameters: PageParameters): Wrap<List<CommunityResult>> {
         return transaction(database) {
             val communities = Community.selectAll().limit(
-                pageParameters.from, min(
-                    pageParameters.size,
+                min(pageParameters.size,
                     MAX_PAGE_SIZE
-                )
+                ), offset=pageParameters.from
             ).map { it.toCommunityResult() }
             mapOf("communities" to communities)
         }

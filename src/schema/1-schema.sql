@@ -1,10 +1,3 @@
-CREATE TABLE IF NOT EXISTS community (
-  community_id SERIAL PRIMARY KEY,
-  name VARCHAR(50) UNIQUE,
-  description VARCHAR(300),
-  CHECK (LOWER(name) = name)
-);
-
 CREATE TABLE IF NOT EXISTS account (
     account_id SERIAL PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
@@ -13,6 +6,13 @@ CREATE TABLE IF NOT EXISTS account (
     votes INT NOT NULL DEFAULT 0,
     password_hash VARCHAR(128) NOT NULL,
     password_salt VARCHAR(16) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS community (
+  community_id SERIAL PRIMARY KEY,
+  name VARCHAR(50) UNIQUE,
+  description VARCHAR(300),
+  CHECK (LOWER(name) = name)
 );
 
 CREATE TYPE CONTENT_TYPE AS ENUM ('text', 'link');

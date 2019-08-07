@@ -1,5 +1,6 @@
 package com.reidswan.reidit.controllers
 
+import com.expedia.graphql.annotations.GraphQLIgnore
 import com.reidswan.reidit.common.AccountResult
 import com.reidswan.reidit.common.HttpException
 import com.reidswan.reidit.common.LoginResult
@@ -105,7 +106,7 @@ class AccountsController(private val querySource: AccountsQueries) {
         return querySource.getAccountByEmail(emailAddress)
     }
 
-    fun createAccount(username: String, emailAddress: String?, password: String) {
+    fun createAccount(username: String, emailAddress: String?, password: String): AccountResult? {
         val validationErrors = (
                 validate(usernameValidators, username).map{ ValidationError.Username(it) }
               + validate(passwordValidators, password).map{ ValidationError.Password(it) }
@@ -120,7 +121,7 @@ class AccountsController(private val querySource: AccountsQueries) {
 
         val salt = AuthController.generateSalt()
         val hash = AuthController.hashPassword(password, salt)
-        try {
+        val result = try {
             querySource.createAccount(username, emailAddress, hash, salt)
         } catch (e: ExposedSQLException) {
             when (e.cause) {
@@ -131,6 +132,7 @@ class AccountsController(private val querySource: AccountsQueries) {
             }
         }
         // TODO account creation email
+        return result
     }
 
     fun login(loginIdentifier: String, password: String): LoginResult? {
