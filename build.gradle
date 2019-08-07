@@ -6,6 +6,8 @@ buildscript {
     ext.gson_version = '2.8.5'
     ext.exposed_version = '0.16.1'
     ext.postgresql_version = '42.2.6'
+    ext.kotlin_graphQL_version = '1.0.0-RC3'
+    ext.java_graphQL_version = '11.0.0'
 
     repositories {
         mavenCentral()
@@ -47,6 +49,8 @@ dependencies {
     implementation "io.ktor:ktor-auth:$ktor_version"
     implementation "io.ktor:ktor-auth-jwt:$ktor_version"
     implementation "com.auth0:java-jwt:$auth0_jwt_version"
+    implementation "com.expedia:graphql-kotlin-schema-generator:$kotlin_graphQL_version"
+    implementation "com.graphql-java:graphql-java:$java_graphQL_version"
 
     /** TEST DEPENDENCIES **/
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.3.1'

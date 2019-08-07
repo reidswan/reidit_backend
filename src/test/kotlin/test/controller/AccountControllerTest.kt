@@ -52,7 +52,7 @@ class AccountControllerTest {
     @Test
     fun `test createAccount fails if email invalid`() {
         val mockAccountsQueries = mockk<AccountsQueries>()
-        every { mockAccountsQueries.createAccount(any(), any(), any(), any()) } returns Unit
+        every { mockAccountsQueries.createAccount(any(), any(), any(), any()) } returns null
         every { mockAccountsQueries.getAccountByEmail(any()) } returns null
         every { mockAccountsQueries.getAccountByUsername(any()) } returns null
         val controller = AccountsController(mockAccountsQueries)
@@ -65,7 +65,7 @@ class AccountControllerTest {
     @Test
     fun `test createAccount fails if username taken`() {
         val mockAccountsQueries = mockk<AccountsQueries>()
-        every { mockAccountsQueries.createAccount(any(), any(), any(), any()) } returns Unit
+        every { mockAccountsQueries.createAccount(any(), any(), any(), any()) } returns null
         every { mockAccountsQueries.getAccountByEmail(any()) } returns null
         every { mockAccountsQueries.getAccountByUsername(any()) } returns AccountResult(
             1, "test", "test@example.com", false, "hash", "salt"
@@ -79,7 +79,7 @@ class AccountControllerTest {
     @Test
     fun `test createAccount fails if password invalid`() {
         val mockAccountsQueries = mockk<AccountsQueries>()
-        every { mockAccountsQueries.createAccount(any(), any(), any(), any()) } returns Unit
+        every { mockAccountsQueries.createAccount(any(), any(), any(), any()) } returns null
         every { mockAccountsQueries.getAccountByEmail(any()) } returns null
         every { mockAccountsQueries.getAccountByUsername(any()) } returns null
         val controller = AccountsController(mockAccountsQueries)
@@ -91,7 +91,7 @@ class AccountControllerTest {
     @Test
     fun `test createAccount succeeds on valid input`() {
         val mockAccountsQueries = mockk<AccountsQueries>()
-        every { mockAccountsQueries.createAccount(any(), any(), any(), any()) } returns Unit
+        every { mockAccountsQueries.createAccount(any(), any(), any(), any()) } returns null
         every { mockAccountsQueries.getAccountByEmail(any()) } returns null
         every { mockAccountsQueries.getAccountByUsername(any()) } returns null
         val controller = AccountsController(mockAccountsQueries)
