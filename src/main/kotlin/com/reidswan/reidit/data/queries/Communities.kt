@@ -15,19 +15,19 @@ fun ResultRow.toCommunityResult(): CommunityResult {
         this[Community.communityId],
         this[Community.name],
         this[Community.description],
-        this[Community.createdBy]
+        this[Community.createdBy],
+        listOf()
     )
 }
 
 class CommunitiesQueries(private val database: Database) {
-    fun getCommunities(pageParameters: PageParameters): Wrap<List<CommunityResult>> {
+    fun getCommunities(pageParameters: PageParameters): List<CommunityResult> {
         return transaction(database) {
-            val communities = Community.selectAll().limit(
+            Community.selectAll().limit(
                 min(pageParameters.size,
                     MAX_PAGE_SIZE
                 ), offset=pageParameters.from
             ).map { it.toCommunityResult() }
-            mapOf("communities" to communities)
         }
     }
 
@@ -35,6 +35,16 @@ class CommunitiesQueries(private val database: Database) {
         return transaction(database) {
             Community.select { Community.name eq communityName }.firstOrNull()?.toCommunityResult()
         }
+    }
+
+    fun createCommunity(communityName: String, description: String?, createdBy: Int): CommunityResult? {
+        return transaction(database) {
+            Community.insert {
+                it[Community.name] = communityName
+                it[Community.description] = description ?: ""
+                it[Community.createdBy] = createdBy
+            }
+        }.resultedValues?.firstOrNull()?.toCommunityResult()
     }
 
 }

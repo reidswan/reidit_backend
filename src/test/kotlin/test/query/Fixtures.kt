@@ -10,6 +10,7 @@ import org.jetbrains.exposed.sql.transactions.TransactionManager
 import org.jetbrains.exposed.sql.transactions.transaction
 
 object Fixtures {
+    var createdId: Int? = null
 
     fun clearDatabase() {
         val tables = listOf("account", "community", "post", "vote", "subscription", "comment", "email_verification")
@@ -22,7 +23,7 @@ object Fixtures {
 
     fun fillDatabase() {
         transaction(Configuration.dependencies.database) {
-            Account.batchInsert(listOf(
+            createdId = Account.batchInsert(listOf(
                 AccountResult(1, "account1", "account1@example.com", false, "hash", "salt")))
             {
                 this[Account.username] = it.username
@@ -30,11 +31,12 @@ object Fixtures {
                 this[Account.verified] = it.verified
                 this[Account.passwordHash] = it.passwordHash
                 this[Account.passwordSalt] = it.passwordSalt
-            }
+            }.first().get(Account.accountId)
 
             Community.batchInsert(1 .. 10) {i ->
                 this[Community.name] = "community_$i"
                 this[Community.description] = "Community number $i"
+                this[Community.createdBy] = createdId!!
             }
         }
     }

@@ -1,6 +1,6 @@
 package test.query
 
-import com.reidswan.reidit.common.PageParameters
+import com.reidswan.reidit.common.*
 import com.reidswan.reidit.config.Configuration
 import com.reidswan.reidit.data.queries.AccountsQueries
 import com.reidswan.reidit.data.queries.CommunitiesQueries
@@ -31,8 +31,22 @@ object CommunityQueryTest {
     fun `test getCommunities respects page parameters`() {
         val pageParams = PageParameters(1, 5)
         val queries = CommunitiesQueries(Configuration.dependencies.database)
-        val result = queries.getCommunities(pageParams)
-        val communities = result["communities"]!!
+        val communities = queries.getCommunities(pageParams)
         Assertions.assertEquals(communities.size, pageParams.size)
+    }
+
+    @Test 
+    fun `test createCommunity`() {
+        val communityName = "test_create_community"
+        val communityDesc = "testDesc"
+        val accountId = Fixtures.createdId!!
+        val queries = CommunitiesQueries(Configuration.dependencies.database)
+        queries.createCommunity(communityName, communityDesc, accountId)
+        val created = queries.getCommunityByName(communityName)
+        Assertions.assertNotNull(created)
+        if (created == null) return
+        Assertions.assertEquals(created.name, communityName)
+        Assertions.assertEquals(created.description, communityDesc)
+        Assertions.assertEquals(created.createdBy, accountId)
     }
 }

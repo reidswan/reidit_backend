@@ -9,9 +9,4 @@ const val MAX_PAGE_SIZE: Int = 100
 val logger = LoggerFactory.getLogger("QueryLogger")
 typealias Wrap<V> = Map<String, V>
 
-class QuerySource(private val database: Database) {
-    val communitiesQueries: CommunitiesQueries = CommunitiesQueries(database)
-    val postQueries: PostsQueries = PostsQueries(database)
-    val accountQueries: AccountsQueries = AccountsQueries(database)
-}
 

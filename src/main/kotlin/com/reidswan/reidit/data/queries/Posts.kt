@@ -21,8 +21,8 @@ fun ResultRow.toPostResult(): PostResult {
 }
 
 class PostsQueries(private val database: Database) {
-    fun getPostsByCommunityName(communityName: String, pageParameters: PageParameters): Wrap<List<PostResult>> {
-        val posts = transaction(database) {
+    fun getPostsByCommunityName(communityName: String, pageParameters: PageParameters): List<PostResult> {
+        return transaction(database) {
             (Post innerJoin Community)
                 .slice(
                     Post.postId,
@@ -38,6 +38,18 @@ class PostsQueries(private val database: Database) {
                 .limit(pageParameters.from, min(pageParameters.size, MAX_PAGE_SIZE))
                 .map { it.toPostResult() }
         }
-        return mapOf("posts" to posts)
+    }
+
+    fun createPost(communityId: Int, title: String, postType: ContentType, content: String, createdByAccount: Int, votes: Int = 0): PostResult? {
+        return transaction(database) {
+            Post.insert {
+                it[Post.communityId] = communityId
+                it[Post.title] = title
+                it[Post.postType] = postType
+                it[Post.content] = content
+                it[Post.votes] = votes
+                it[Post.accountId] = createdByAccount
+            }.resultedValues?.firstOrNull()?.toPostResult()
+        }
     }
 }
