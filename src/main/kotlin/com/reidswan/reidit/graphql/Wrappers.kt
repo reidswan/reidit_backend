@@ -2,9 +2,6 @@ package com.reidswan.reidit.graphql
 
 import com.expedia.graphql.annotations.GraphQLContext
 import com.expedia.graphql.annotations.GraphQLName
-import com.reidswan.reidit.common.HttpException
-import com.reidswan.reidit.common.PublicAccountResult
-import com.reidswan.reidit.common.UserPrincipal
 import com.reidswan.reidit.config.Configuration
 import com.reidswan.reidit.controllers.*
 import com.reidswan.reidit.data.queries.*
@@ -73,5 +70,11 @@ class CommunityMutations {
         val loggedInUser = context.authentication.principal<UserPrincipal>() ?:
             throw HttpException("You must be logged in to create a community", HttpStatusCode.Unauthorized)
         return communitiesController.createCommunity(communityName, communityDescription, loggedInUser)
+    }
+
+    fun createPost(@GraphQLContext context: ApplicationCall, communityName: String, title: String, postType: ContentType, content: String): PostResult? {
+        val loggedInUser = context.authentication.principal<UserPrincipal>() ?:
+            throw HttpException("You must be logged in to create a post", HttpStatusCode.Unauthorized)
+        return communitiesController.createPost(communityName, title, postType, content, loggedInUser)
     }
 }

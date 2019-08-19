@@ -2,7 +2,7 @@ package com.reidswan.reidit.common
 
 enum class ContentType { text, link }
 
-data class PostResult(
+data class PostResult (
     val postId: Int,
     val communityId: Int,
     val title: String,

@@ -32,7 +32,6 @@ class CommunityControllerTest {
         val mockCommunityQueries = mockk<CommunitiesQueries>()
         val mockPostsQueries = mockk<PostsQueries>()
         every { mockCommunityQueries.getCommunityByName(any()) } returns null;
-        val pageParams = PageParameters(1, 50)
         val controller = CommunitiesController(mockCommunityQueries, mockPostsQueries)
         Assertions.assertFalse(controller.communityExists("something"))
     }
