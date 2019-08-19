@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS community (
   community_id SERIAL PRIMARY KEY,
   name VARCHAR(50) UNIQUE,
   description VARCHAR(300),
+  created_by INT NOT NULL REFERENCES account(account_id),
   CHECK (LOWER(name) = name)
 );
 

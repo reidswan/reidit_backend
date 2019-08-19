@@ -8,3 +8,5 @@ import org.slf4j.LoggerFactory
 const val MAX_PAGE_SIZE: Int = 100
 val logger = LoggerFactory.getLogger("QueryLogger")
 typealias Wrap<V> = Map<String, V>
+
+

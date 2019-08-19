@@ -4,8 +4,7 @@ import com.expedia.graphql.SchemaGeneratorConfig
 import com.expedia.graphql.TopLevelObject
 import com.expedia.graphql.annotations.GraphQLName
 import com.expedia.graphql.toSchema
-import com.reidswan.reidit.graphql.AccountMutations
-import com.reidswan.reidit.graphql.AccountQueries
+import com.reidswan.reidit.graphql.*
 import graphql.ExecutionInput
 import graphql.GraphQL
 import io.ktor.application.Application
@@ -34,8 +33,8 @@ fun Application.graphQL() {
     val config = SchemaGeneratorConfig(listOf("com.reidswan"))
 
     /** the GraphQL schema objects **/
-    val queries = listOf(TopLevelObject(AccountQueries()))
-    val mutations = listOf(TopLevelObject(AccountMutations()))
+    val queries = listOf(TopLevelObject(AccountQueries()), TopLevelObject(CommunityQueries()))
+    val mutations = listOf(TopLevelObject(AccountMutations()), TopLevelObject(CommunityMutations()))
 
     /** the GraphQL schemas */
     val querySchema = toSchema(config=config, queries=queries)

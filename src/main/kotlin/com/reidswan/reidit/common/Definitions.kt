@@ -12,6 +12,9 @@ class PageParameters (val pageNumber: Int, val pageSize: Int) {
     val size = pageSize
 }
 
+val SAMPLE_PAGE_PARAMETERS: PageParameters = PageParameters(1, 3)
+val DEFAULT_PAGE_PARAMETERS: PageParameters = PageParameters(1, 50)
+
 /** Exceptions **/
 
 data class ErrorResponse(val message: String) {
